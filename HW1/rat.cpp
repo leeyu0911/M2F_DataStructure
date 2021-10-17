@@ -5,8 +5,8 @@
 using namespace std;
 
 /* maze config */
-const int mazeWidth = 17;
-const int maxSize = mazeWidth * mazeWidth;  //max size if stack
+const int mazeWidth = 17;  //maze: 17 x 17
+const int maxSize = mazeWidth * mazeWidth;  //max size of stack
 
 /* stack class */
 class Stack {
@@ -20,7 +20,7 @@ public:
 };
 
 bool Stack::push(int data) {
-    if (top == maxSize) {
+    if (top == maxSize) {  //can not push to stack
         cout << "Stack Overflow!" << endl;
         return false;
     } else {
@@ -30,7 +30,7 @@ bool Stack::push(int data) {
 }
 
 int Stack::pop() {
-    if (top < 0) {
+    if (top < 0) {  //if stack is empty
 //        cout << "Stack is empty!" << endl;
         return -1;
     } else {
@@ -43,14 +43,13 @@ bool Stack::isEmpty() {
 }
 
 /* Stack init */
-Stack positionStack;
-Stack xStack;
-Stack yStack;
-int mazeSize = 17;
+Stack positionStack;  //store position
+Stack xStack;         //store last x
+Stack yStack;         //store last y
 
 
 /* my func */
-void pushStack(int position, int x, int y) {
+void pushStack(int position, int x, int y) {  //push data to 3 stack
     positionStack.push(position);
     xStack.push(x);
     yStack.push(y);
@@ -63,7 +62,7 @@ void pushStack(int position, int x, int y) {
 //    static int temp[] = {p, x, y};
 //    return temp;
 //}
-void popStack(int *temp) {
+void popStack(int *temp) {  //pop data to 3 stack
     int p = positionStack.pop();
     int x = xStack.pop();
     int y = yStack.pop();
@@ -74,29 +73,43 @@ void popStack(int *temp) {
 
 
 int main() {
-    //get filename
+    // get filename
+    ifstream txtFile;
     string filename = "maze.txt";
     cout << "enter filename :";
     cin >> filename;  //commend for auto load maze.txt
-
-    //open file
-    string s;
-    ifstream txtFile;
     txtFile.open(filename);
+    // if file not found, get filename again
+    while (!txtFile) {
+        cout << "file not found!" << endl;
+        cout << "enter filename :";
+        cin >> filename;  //commend for auto load maze.txt
+        txtFile.open(filename);
+    }
 
     // init maze matrix
     int maze[mazeWidth][mazeWidth];
 
-    // build maze matrix
+    // open file
+    string s;
     int i_getline = 0;
     while (getline(txtFile, s))
     {
-        cout << s << endl;
-        for (int j = 0; j < mazeWidth; ++j) {
+        cout << s << endl;  //print maze
+        for (int j = 0; j < mazeWidth; ++j) {  //build maze matrix
             if (s[j] == '1') maze[i_getline][j] = 1;
             else if (s[j] == '0') maze[i_getline][j] = 0;
         }
         ++i_getline;
+    }
+    txtFile.close();
+
+    // copy maze for restart maze
+    int maze_copy[mazeWidth][mazeWidth];
+    for (int i = 0; i < mazeWidth; ++i) {
+        for (int j = 0; j < mazeWidth; ++j) {
+            maze_copy[i][j] = maze[i][j];
+        }
     }
 
     //check maze
@@ -110,12 +123,18 @@ int main() {
 
     //code loop
     while (true){
-        // deal start and exit position
+        // init maze for continuously enter a start and an exit position for a journey
+        for (int i = 0; i < mazeWidth; ++i) {
+            for (int j = 0; j < mazeWidth; ++j) {
+                maze[i][j] = maze_copy[i][j];
+            }
+        }
+        // input start and exit position
         int start[2];
         int exit[2];
         cout << "enter start position :";
         cin >> start[0] >> start[1];
-        //end code
+        // input -1 -1 to end the code
         if (start[0] == -1 && start[1] == -1) {
             cout << "end the code.";
             return 0;
@@ -123,11 +142,11 @@ int main() {
         cout << "enter exit position :";
         cin >> exit[0] >> exit[1];
 
-        // input maze index start from 1
-        --start[0];
-        --start[1];
-        --exit[0];
-        --exit[1];
+        // ctrl input and maze index gap
+//        --start[0];
+//        --start[1];
+//        --exit[0];
+//        --exit[1];
 //        cout << start[0] << start[1] << exit[0] << exit[0] << endl;
 
         //right -> down -> up -> left
@@ -137,23 +156,23 @@ int main() {
         pushStack(0, curX, curY);
         int step = 1;
         while (true) {
-            cout << step << ":" << curX+1 << "," << curY+1 << endl;  //maze output index from 1
+            cout << step << ":" << curX << "," << curY << endl;  //output journey
             if (maze[curY][curX+1] == 0) {  //right
-                maze[curY][curX+1] = 2;
-                pushStack(0, ++curX, curY);
+                maze[curY][curX+1] = 2;  //if rat has visited
+                pushStack(1, ++curX, curY);
             } else if (maze[curY+1][curX] == 0) {  //down
                 maze[curY+1][curX] = 2;
-                pushStack(0, curX, ++curY);
+                pushStack(2, curX, ++curY);
             } else if (maze[curY-1][curX] == 0) {  //up
                 maze[curY-1][curX] = 2;
-                pushStack(0, curX, --curY);
+                pushStack(3, curX, --curY);
             } else if (maze[curY][curX-1] == 0) {  //left
                 maze[curY][curX-1] = 2;
-                pushStack(0, --curX, curY);
+                pushStack(4, --curX, curY);
             } else {
 //                int *last = popStack();
                 int last[3];
-                popStack(last);
+                popStack(last);  //get data from stack and store in "last"
                 if (last[0] == -1) {  //stack empty
                     cout << "Failed to escape." << endl;
                     break;
@@ -166,10 +185,10 @@ int main() {
                 cout << "successfully escaped!!" << endl;
                 break;
             }
-            ++step;
+            ++step;  //count the step
         }  //end maze loop
 
-        //print maze
+        //print visited maze, 2 is the path
         for (int i = 0; i < mazeWidth; ++i) {
             for (int j = 0; j < mazeWidth; ++j) {
                 cout << maze[i][j] << ",";
