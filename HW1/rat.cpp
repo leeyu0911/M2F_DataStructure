@@ -150,29 +150,42 @@ int main() {
 //        cout << start[0] << start[1] << exit[0] << exit[0] << endl;
 
         //right -> down -> up -> left
-        int curX = start[0];
-        int curY = start[1];
+        int curX = start[1];  //x in homework is column
+        int curY = start[0];  //y in homework is row
+
         maze[curY][curX] = 2;  //record path
         pushStack(0, curX, curY);
         int step = 1;
         while (true) {
-            cout << step << ":" << curX << "," << curY << endl;  //output journey
+//            cout << step << ":" << curX << "," << curY << endl;  //output journey
             if (maze[curY][curX+1] == 0) {  //right
                 maze[curY][curX+1] = 2;  //if rat has visited
                 pushStack(1, ++curX, curY);
+                cout << step << ":" << curY << "," << curX << endl;
+                ++step;  //count the step
             } else if (maze[curY+1][curX] == 0) {  //down
                 maze[curY+1][curX] = 2;
                 pushStack(2, curX, ++curY);
+                cout << step << ":" << curY << "," << curX << endl;
+                ++step;  //count the step
             } else if (maze[curY-1][curX] == 0) {  //up
                 maze[curY-1][curX] = 2;
                 pushStack(3, curX, --curY);
+                cout << step << ":" << curY << "," << curX << endl;
+                ++step;  //count the step
             } else if (maze[curY][curX-1] == 0) {  //left
                 maze[curY][curX-1] = 2;
                 pushStack(4, --curX, curY);
-            } else {
+                cout << step << ":" << curY << "," << curX << endl;
+                ++step;  //count the step
+            } else {  //back
 //                int *last = popStack();
                 int last[3];
                 popStack(last);  //get data from stack and store in "last"
+                if (maze[curY][curX] != 1) {  //Do not count path is 1
+                    cout << step << ":" << curY << "," << curX << endl;
+                    ++step;  //count the step
+                }
                 if (last[0] == -1) {  //stack empty
                     cout << "Failed to escape." << endl;
                     break;
@@ -181,20 +194,21 @@ int main() {
                     curY = last[2];
                 }
             }
-            if (curX == exit[0] && curY == exit[1]) {  //success escaped
+            if (curX == exit[1] && curY == exit[0]) {  //success escaped (x, y same with start)
                 cout << "successfully escaped!!" << endl;
                 break;
             }
-            ++step;  //count the step
+
         }  //end maze loop
 
-        //print visited maze, 2 is the path
-        for (int i = 0; i < mazeWidth; ++i) {
-            for (int j = 0; j < mazeWidth; ++j) {
-                cout << maze[i][j] << ",";
-            }
-            cout << endl;
-        }
+        //print visited maze, 2 means the path
+//        cout << "Journey: (2 means path)" << endl;
+//        for (int i = 0; i < mazeWidth; ++i) {
+//            for (int j = 0; j < mazeWidth; ++j) {
+//                cout << maze[i][j] << ",";
+//            }
+//            cout << endl;
+//        }
 
         //check position
 //        cout << maze[start[0]][start[1]] << endl;
