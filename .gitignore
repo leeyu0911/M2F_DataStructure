@@ -32,5 +32,6 @@
 *.app
 
 .idea
-HW1/cmake-build-debug
-HW2/cmake-build-debug
+.vscode
+.DS_Store
+cmake-build-debug
