@@ -1,4 +1,5 @@
 #include <iostream>
+#include<queue>
 
 using namespace std;
 
@@ -10,15 +11,53 @@ private:
     BST_Node *left;
     BST_Node *right;
 public:
-    BST_Node(int x):
-    data(x), left(NULL), right(NULL);
+    BST_Node(int x):  // init BST_Node
+    data(x), left(NULL), right(NULL) {}
 };
 
 class BST {
 private:
     BST_Node *root;
+    void prefix(BST_Node *node) {
+        cout << "The tree in prefix order : ";
+        if (node) {
+            cout << node->data << " ";
+            prefix(node->left);
+            prefix(node->right);
+        }
+    }
+    void infix(BST_Node *node) {
+        cout << "The tree in infix order : ";
+        if (node) {
+            infix(node->left);
+            cout << node->data << " ";
+            infix(node->right);
+        }
+    }
+    void postfix(BST_Node *node) {
+        cout << "The tree in postfix order : ";
+        if (node) {
+            postfix(node->left);
+            postfix(node->right);
+            cout << node->data << " ";
+        }
+    }
+    void level_order(BST_Node *node) {
+        queue<BST_Node*> q_node;
+        if (node) {  // tree is not empty
+            q_node.push(node);
+            while (!q_node.empty()) {
+                BST_Node *temp = q_node.front();  // get first node
+                cout << temp->data << " ";
+                q_node.pop();
+                if (temp->left) q_node.push(temp->left);
+                if (temp->right) q_node.push(temp->right);
+            }
+        }
+
+    }
 public:
-    BST():
+    BST():  // init binary search tree
     root(NULL) {}
 
     void insert(int num) {
@@ -42,35 +81,41 @@ public:
             cout << "Number " << num << " is inserted." << endl;
         }
     }
-    void delete_node() {
+    void delete_node(int num) {
+        if (search(num)) {
+
+        } else { // num not exist
+            cout << "Number " << num << " is not exist." << endl;
+        }
     }
     bool search(int num) {
+        BST_Node *temp = root;
+        while (temp != NULL && temp->data != num) {
+            if (temp->data > num) temp = temp->left;
+            else temp = temp->right;
+        }
+        if (temp == NULL) return false;
+        else return true;
     }
     void print() {
+        prefix(root);
+        infix(root);
+        postfix(root);
+        level_order(root);
     }
 };
 
 /* Level function */
 class Binary_searching_Tree {
 private:
-    static void prefix() {
 
-    }
-    static void infix() {
-    }
-    static void postfix() {
-
-    }
-    static void level_order() {
-
-    }
 public:
-    static void insert_number() {
+    static void insert_number(BST tree) {
         /* Enter “i”, then enter a sequence of numbers and ended
            with “-1” to build a BST. Noticed that the number “-1” is
            not a node for insertion. */
     }
-    static void delete_number() {
+    static void delete_number(BST tree) {
         /* Enter “d”, then enter a sequence of numbers ended with “-1” to
            delete (the same as insert) as Fig. 4.
                 (a) If the deleted node is a leaf, then delete directly.
@@ -82,12 +127,12 @@ public:
 
 
     }
-    static void search_number() {
+    static void search_number(BST tree) {
         /* Enter “s”, then enter a sequence ended with “-1” to search whether
            the numbers are in the BST.
            If the number is not in the BST then print the number is not found. */
     }
-    static void print() {
+    static void print(BST tree) {
         /* Enter “p” to print prefix -> infix -> postfix and level order of
            the BST after the above executions.
            Enter “r” to return to the main menu.
@@ -106,24 +151,25 @@ void binary_searching_tree() {
         cout << "(P)rint 4 kinds of orders." << endl;
         cout << "(R)eturn" << endl;
 
-        char action_input[2];
+        char action_input;
         cin >> action_input;
-        switch (action_input[0]) {
+        BST tree;
+        switch (action_input) {
             case 'I':
             case 'i':
-                Binary_searching_Tree::insert_number();
+                Binary_searching_Tree::insert_number(tree);
                 break;
             case 'D':
             case 'd':
-                Binary_searching_Tree::delete_number();
+                Binary_searching_Tree::delete_number(tree);
                 break;
             case 'S':
             case 's':
-                Binary_searching_Tree::search_number();
+                Binary_searching_Tree::search_number(tree);
                 break;
             case 'P':
             case 'p':
-                Binary_searching_Tree::print();
+                Binary_searching_Tree::print(tree);
                 break;
             case 'R':
             case 'r':
@@ -140,7 +186,7 @@ void finding_meaty() {
 }
 
 void escape_and_face_to_music_next_year() {
-
+    // not used
 }
 
 
@@ -151,17 +197,17 @@ int main() {
         cout << "(0)Escape and face to music next year." << endl;
 
 
-        int first_input;
+        char first_input;
         cin >> first_input;
 
         switch(first_input) {
-            case 1:
+            case '1':
                 binary_searching_tree();
                 break;
-            case 2:
+            case '2':
                 finding_meaty();
                 break;
-            case 0:
+            case '0':
                 escape_and_face_to_music_next_year();
                 break;
             default:
