@@ -1,5 +1,7 @@
 #include <iostream>
 #include<queue>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -16,10 +18,102 @@ public:
 };
 
 class BST {
+
 private:
     BST_Node *root;
+    int minimum() {
+        BST_Node *temp = root;
+        while (temp->left != NULL) {
+            temp = temp->left;
+        }
+        return temp->data;
+    }
+    int maximum() {
+        BST_Node *temp = root;
+        while (temp->right != NULL) {
+            temp = temp->right;
+        }
+        return temp->data;
+    }
+    BST_Node *_search(int num) {
+        BST_Node *temp = root;
+        while (temp != NULL && temp->data != num) {
+            if (temp->data > num) temp = temp->left;
+            else temp = temp->right;
+        }
+        return temp;
+    }
+    BST_Node *getParent(int num) {
+        if (_search(num)) {
+            BST_Node *temp = root;
+            BST_Node *parent;
+            while (temp->data != num) {
+                parent = temp;
+                if (temp->data > num) temp = temp->left;
+                else temp = temp->right;
+            }
+            if (temp == root) return NULL;
+            else return parent;
+        } else {
+            return NULL;
+        }
+    }
+    BST_Node *predecessor(int num) {
+        BST_Node *the_node = _search(num);
+        BST_Node *parent = getParent(num);
+        if (!the_node || minimum() == num) return NULL;
+        else {
+            if (the_node->left != NULL) {  // left subtree
+                BST_Node *temp = the_node->left;
+                while (temp->right != NULL)
+                    temp = temp->right;
+                return temp;
+            } else {  // no left subtree
+                if (parent->right == the_node) return parent;
+                else {
+                    while (parent->data > num)
+                        parent = getParent(parent->data);
+                    return parent;
+                }
+            }
+        }
+    }
+    BST_Node *successor(int num) {
+        BST_Node *the_node = _search(num);
+        BST_Node *parent = getParent(num);
+        if (!the_node || maximum() == num) {  // not found or self
+            return NULL;
+        } else {
+            if (the_node->right != NULL) {  // right subtree
+                BST_Node *temp = the_node->right;
+                while (temp->left != NULL) {
+                    temp = temp->left;
+                }
+                return temp;
+            } else {  // no right subtree
+                if (parent->left == the_node)
+                    return parent;
+                else {
+                    while (parent->data < num)
+                        parent = getParent(parent->data);
+                    return parent;
+                }
+            }
+        }
+    }
+//    BST_Node *getNode(int num) {  // get the node pointer
+//        if (_search(num)) {
+//            BST_Node *temp = root;
+//            while (temp->data != num) {
+//                if (temp->data > num) temp = temp->left;
+//                else temp = temp->right;
+//            }
+//            return temp;
+//        } else {
+//            return NULL;
+//        }
+//    }
     void prefix(BST_Node *node) {
-        cout << "The tree in prefix order : ";
         if (node) {
             cout << node->data << " ";
             prefix(node->left);
@@ -27,7 +121,6 @@ private:
         }
     }
     void infix(BST_Node *node) {
-        cout << "The tree in infix order : ";
         if (node) {
             infix(node->left);
             cout << node->data << " ";
@@ -35,7 +128,6 @@ private:
         }
     }
     void postfix(BST_Node *node) {
-        cout << "The tree in postfix order : ";
         if (node) {
             postfix(node->left);
             postfix(node->right);
@@ -54,14 +146,13 @@ private:
                 if (temp->right) q_node.push(temp->right);
             }
         }
-
     }
 public:
-    BST():  // init binary search tree
+    BST():  // init binary _search tree
     root(NULL) {}
 
     void insert(int num) {
-        if (search(num)) {  // num exists
+        if (_search(num)) {  // num exists
             cout << "Error. Number " << num << " exists." << endl;
         } else {
             BST_Node *temp = root;
@@ -82,68 +173,195 @@ public:
         }
     }
     void delete_node(int num) {
-        if (search(num)) {
+//        (a) If the deleted node is a leaf, then delete directly.
+//        (b) If the deleted node has a child, then replace the deleted node with its child.
+//        (c) If the deleted node has left and right sub-tree, then replace the deleted node with the smallest node of the right subtree.
+        BST_Node *the_node = _search(num);
+        BST_Node *parent = getParent(num);
+        if (the_node) {  // the node is in the tree
 
+            // case (a) node is a leaf
+            if (the_node->left == NULL && the_node->right == NULL) {
+                if (parent->data > the_node->data) {
+                    parent->left = NULL;
+//                    free(the_node);
+                } else {
+                    parent->right = NULL;
+//                    free(the_node);
+                }
+            }
+
+            // case (b) node has a child
+            else if (the_node->left != NULL && the_node->right == NULL) {  // the node has left subtree
+                if (parent->data > the_node->data) {
+                    parent->left = the_node->left;
+//                    free(the_node);
+                } else {
+                    parent->right = the_node->left;
+//                    free(the_node);
+                }
+            }
+            else if (the_node->left == NULL && the_node->right != NULL) {  // the node has right subtree
+                if (parent->data > the_node->data) {
+                    parent->left = the_node->right;
+//                    free(the_node);
+                } else {
+                    parent->right = the_node->right;
+//                    free(the_node);
+                }
+            }
+
+            // case (c) node has left and right sub-tree
+            else {
+                BST_Node *suc = successor(num);
+                BST_Node *suc_parent = getParent(suc->data);
+
+                the_node->data = suc->data;
+
+//                cout << "suc:" << suc->data << endl;
+//                cout << "suc parent:" << suc_parent->data << endl;
+
+                // case c(a) node is a leaf
+                if (suc->left == NULL && suc->right == NULL) {
+                    if (suc_parent->data > suc->data) {
+                        suc_parent->left = NULL;
+//                        free(suc);
+                    } else {
+                        suc_parent->right = NULL;
+//                        free(suc);
+                    }
+                }
+
+                // case c(b) node has a child
+                else if (suc->left != NULL && suc->right == NULL) {  // the node has left subtree
+                    if (suc_parent->data > suc->data) {
+                        suc_parent->left = suc->left;
+//                        free(suc);
+                    } else {
+                        suc_parent->right = suc->left;
+//                        free(suc);
+                    }
+                } else if (suc->left == NULL && suc->right != NULL) {  // the node has right subtree
+                    if (suc_parent->data > suc->data) {
+                        suc_parent->left = suc->right;
+//                        free(suc);
+                    } else {
+                        suc_parent->right = suc->right;
+//                        free(suc);
+                    }
+                }
+            }
+            cout << "Number " << num << " is deleted." << endl;
         } else { // num not exist
             cout << "Number " << num << " is not exist." << endl;
         }
     }
-    bool search(int num) {
+    void search(int num) {
         BST_Node *temp = root;
         while (temp != NULL && temp->data != num) {
             if (temp->data > num) temp = temp->left;
             else temp = temp->right;
         }
-        if (temp == NULL) return false;
-        else return true;
+        if (temp)
+            cout << "Bingo! " << temp->data << " is found." << endl;
+        else
+            cout << "SORRY. " << num << " is not found." << endl;
+//        cout << "suc: " << successor(num)->data << endl;
+//        cout << "parent: " << getParent(num)->data << endl;
     }
+
     void print() {
+        cout << "The tree in prefix order : ";
         prefix(root);
+        cout << endl;
+        cout << "The tree in infix order : ";
         infix(root);
+        cout << endl;
+        cout << "The tree in postfix order : ";
         postfix(root);
+        cout << endl;
+        cout << "The tree in level order : ";
         level_order(root);
+        cout << endl;
     }
+//    ~BST() {
+//        cout << "delete tree!!!" << endl;
+//    }
 };
 
 /* Level function */
 class Binary_searching_Tree {
 private:
+    static void input_handler(int num[]) {
+        int i = 0;
+        int input;
 
+        cin >> input;
+        while(input!=-1)
+        {
+            num[i] = input;
+            cin >> input;
+            ++i;
+        }
+    }
 public:
-    static void insert_number(BST tree) {
+    static void insert_number(BST *tree) {
         /* Enter “i”, then enter a sequence of numbers and ended
            with “-1” to build a BST. Noticed that the number “-1” is
            not a node for insertion. */
+        cout << "Enter numbers: ";
+        int num[100] = {0};
+        input_handler(num);
+
+        for (int i = 0; num[i] != 0; ++i) {
+            tree->insert(num[i]);
+        }
     }
-    static void delete_number(BST tree) {
+
+    static void delete_number(BST *tree) {
         /* Enter “d”, then enter a sequence of numbers ended with “-1” to
            delete (the same as insert) as Fig. 4.
-                (a) If the deleted node is a leaf, then delete directly.
-                (b) If the deleted node has a child, then replace the deleted node with its child.
-                (c) If the deleted node has left and right sub-tree, then replace
-           the deleted node with the smallest node of the right sub-tree.
            Also consider the error deletion case that the deleted
            node(number) is not existed. */
+        cout << "Enter number to deleted: ";
+        int num[100] = {0};
+        input_handler(num);
 
-
+        for (int i = 0; num[i] != 0; ++i) {
+            tree->delete_node(num[i]);
+        }
     }
-    static void search_number(BST tree) {
-        /* Enter “s”, then enter a sequence ended with “-1” to search whether
+
+    static void search_number(BST *tree) {
+        /* Enter “s”, then enter a sequence ended with “-1” to _search whether
            the numbers are in the BST.
            If the number is not in the BST then print the number is not found. */
+        cout << "Enter elements to searching: ";
+        int num[100] = {0};
+        input_handler(num);
+
+        for (int i = 0; num[i] != 0; ++i) {
+            tree->search(num[i]);
+        }
     }
-    static void print(BST tree) {
+    static void print(BST *tree) {
         /* Enter “p” to print prefix -> infix -> postfix and level order of
            the BST after the above executions.
            Enter “r” to return to the main menu.
            You must use queue skills in level order! */
+        tree->print();
     }
 
+};
+
+class Meaty {
+public:
 };
 
 
 /* main function */
 void binary_searching_tree() {
+    BST *tree = new BST;
     while (true) {
         cout << "(I)nsert a number." << endl;
         cout << "(D)elete a number." << endl;
@@ -153,7 +371,7 @@ void binary_searching_tree() {
 
         char action_input;
         cin >> action_input;
-        BST tree;
+
         switch (action_input) {
             case 'I':
             case 'i':
@@ -182,6 +400,52 @@ void binary_searching_tree() {
 }
 
 void finding_meaty() {
+    // get filename
+    string filename_input = "bstmap.txt";
+    cout << "Please input the map file:";
+    cin >> filename_input;
+    // open file
+    string filename(filename_input);
+    ifstream input_file(filename);
+    // if file not found, return to menu
+    if (!input_file.is_open()) {
+        cerr << "Could not open the file '" << filename << "'" << endl;
+        return;
+    }
+    // store number
+    int num[100] = {0};
+    int i = 0;
+    while (input_file >> num[i++]) {
+    }
+//    for (int j = 0; num[j] != 0; ++j) {  // debug
+//        cout << num[j] << endl;
+//    }
+    input_file.close();
+    cout << "Load file success." << endl;
+
+    // build tree
+    BST tree;
+    for (int j = 0; num[j] != 0; ++j) {
+        tree.insert(num[j]);
+    }
+    cout << endl;
+    tree.print();
+
+    int sword_location, meaty_location, broccoli_traps_index;
+    cout << "Please input the sword location: ";
+    cin >> sword_location;
+    cout << "Please input the Meaty's location: ";
+    cin >> meaty_location;
+    cout << "Please input the broccoli trap's index (0~9): ";
+    cin >> broccoli_traps_index;
+
+    // TODO delete the broccoli traps and replace with correct nodes
+
+    // TODO output the correct path of Finding Meaty
+
+    cout << "Capoo successfully found his favorite meaty<3." << endl;
+    cout << "Shortest path to find the meaty:" << endl;
+
 
 }
 
