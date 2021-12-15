@@ -1,5 +1,5 @@
 #include <iostream>
-#include<queue>
+#include <stack>
 #include <fstream>
 #include <string>
 
@@ -8,11 +8,11 @@ using namespace std;
 /* Data structure */
 class BST_Node {
     friend class BST;
-private:
+public:
     int data;
     BST_Node *left;
     BST_Node *right;
-public:
+
     BST_Node(int x):  // init BST_Node
     data(x), left(NULL), right(NULL) {}
 };
@@ -20,7 +20,6 @@ public:
 class BST {
 
 private:
-    BST_Node *root;
     int minimum() {
         BST_Node *temp = root;
         while (temp->left != NULL) {
@@ -150,6 +149,8 @@ private:
 public:
     BST():  // init binary _search tree
     root(NULL) {}
+
+    BST_Node *root;
 
     void insert(int num) {
         if (_search(num)) {  // num exists
@@ -356,6 +357,9 @@ public:
 
 class Meaty {
 public:
+    static void broccoli_traps(int index, int traps[]) {
+        // TODO
+    }
 };
 
 
@@ -429,7 +433,7 @@ void finding_meaty() {
         tree.insert(num[j]);
     }
     cout << endl;
-    tree.print();
+//    tree.print();
 
     int sword_location, meaty_location, broccoli_traps_index;
     cout << "Please input the sword location: ";
@@ -439,12 +443,34 @@ void finding_meaty() {
     cout << "Please input the broccoli trap's index (0~9): ";
     cin >> broccoli_traps_index;
 
-    // TODO delete the broccoli traps and replace with correct nodes
+    // delete the broccoli traps and replace with correct nodes
+    int traps[10] = {0};
+    Meaty::broccoli_traps(broccoli_traps_index, traps);
+    for (int j = 0; traps[j] != 0; ++i) {
+        tree.delete_node(traps[j]);
+    }
+
+    cout << endl;
+    cout << "Capoo successfully found his favorite meaty<3." << endl;
+    cout << endl;
+    cout << "Shortest path to find the meaty:" << endl;
 
     // TODO output the correct path of Finding Meaty
+    BST_Node *cur = tree.root;
+    stack<BST_Node *> s;
 
-    cout << "Capoo successfully found his favorite meaty<3." << endl;
-    cout << "Shortest path to find the meaty:" << endl;
+    cout << cur->data << endl;
+    while (cur->data != sword_location) {
+        if (cur->data > sword_location) {
+            s.push(cur);
+            cur = cur->left;
+            cout << "->" << cur->data;
+        } else {
+            s.push(cur);
+            cur = cur->right;
+            cout << "->" << cur->data;
+        }
+    }
 
 
 }
