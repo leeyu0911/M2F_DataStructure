@@ -1,9 +1,11 @@
 #include <iostream>
 #include <stack>
+#include <queue>
 #include <fstream>
 #include <string>
 
 using namespace std;
+#define MAX_ARRAY_SIZE 1024
 
 /* Data structure */
 class BST_Node {
@@ -19,22 +21,22 @@ public:
 
 class BST {
 
-private:
-    int minimum() {
+public:
+    int minimum() {  //get minimum num
         BST_Node *temp = root;
         while (temp->left != NULL) {
             temp = temp->left;
         }
         return temp->data;
     }
-    int maximum() {
+    int maximum() {  //get maximum num
         BST_Node *temp = root;
         while (temp->right != NULL) {
             temp = temp->right;
         }
         return temp->data;
     }
-    BST_Node *_search(int num) {
+    BST_Node *_search(int num) {  // return the node pointer
         BST_Node *temp = root;
         while (temp != NULL && temp->data != num) {
             if (temp->data > num) temp = temp->left;
@@ -42,7 +44,7 @@ private:
         }
         return temp;
     }
-    BST_Node *getParent(int num) {
+    BST_Node *getParent(int num) {  // return parent pointer
         if (_search(num)) {
             BST_Node *temp = root;
             BST_Node *parent;
@@ -57,7 +59,7 @@ private:
             return NULL;
         }
     }
-    BST_Node *predecessor(int num) {
+    BST_Node *predecessor(int num) {  // get pointer of predecessor
         BST_Node *the_node = _search(num);
         BST_Node *parent = getParent(num);
         if (!the_node || minimum() == num) return NULL;
@@ -77,7 +79,7 @@ private:
             }
         }
     }
-    BST_Node *successor(int num) {
+    BST_Node *successor(int num) {  // get pointer of successor
         BST_Node *the_node = _search(num);
         BST_Node *parent = getParent(num);
         if (!the_node || maximum() == num) {  // not found or self
@@ -152,7 +154,7 @@ public:
 
     BST_Node *root;
 
-    void insert(int num) {
+    void insert(int num, bool isPrint) {
         if (_search(num)) {  // num exists
             cout << "Error. Number " << num << " exists." << endl;
         } else {
@@ -170,7 +172,8 @@ public:
                 if (temp->data > num) temp->left = new BST_Node(num);
                 else temp->right = new BST_Node(num);
             }
-            cout << "Number " << num << " is inserted." << endl;
+            if (isPrint)  // ctrl print
+                cout << "Number " << num << " is inserted." << endl;
         }
     }
     void delete_node(int num) {
@@ -311,11 +314,11 @@ public:
            with “-1” to build a BST. Noticed that the number “-1” is
            not a node for insertion. */
         cout << "Enter numbers: ";
-        int num[100] = {0};
+        int num[MAX_ARRAY_SIZE] = {0};
         input_handler(num);
 
         for (int i = 0; num[i] != 0; ++i) {
-            tree->insert(num[i]);
+            tree->insert(num[i], true);
         }
     }
 
@@ -325,7 +328,7 @@ public:
            Also consider the error deletion case that the deleted
            node(number) is not existed. */
         cout << "Enter number to deleted: ";
-        int num[100] = {0};
+        int num[MAX_ARRAY_SIZE] = {0};
         input_handler(num);
 
         for (int i = 0; num[i] != 0; ++i) {
@@ -338,7 +341,7 @@ public:
            the numbers are in the BST.
            If the number is not in the BST then print the number is not found. */
         cout << "Enter elements to searching: ";
-        int num[100] = {0};
+        int num[MAX_ARRAY_SIZE] = {0};
         input_handler(num);
 
         for (int i = 0; num[i] != 0; ++i) {
@@ -357,8 +360,22 @@ public:
 
 class Meaty {
 public:
-    static void broccoli_traps(int index, int traps[]) {
-        // TODO
+    static void broccoli_traps(int index, int traps[], int num[]) {
+        int i = 0;
+        int j = 0;
+        while (num[i] != 0) {  // do every num
+
+            int test_num = num[i];
+            while (test_num / 10 != 0 || test_num % 10 != 0) {  // do if not zero
+                if (test_num % 10 == index) {
+                    traps[j] = num[i];
+                    ++j;
+                    break;
+                }
+                test_num = test_num / 10;
+            }
+            ++i;
+        }
     }
 };
 
@@ -417,7 +434,7 @@ void finding_meaty() {
         return;
     }
     // store number
-    int num[100] = {0};
+    int num[MAX_ARRAY_SIZE] = {0};
     int i = 0;
     while (input_file >> num[i++]) {
     }
@@ -430,7 +447,7 @@ void finding_meaty() {
     // build tree
     BST tree;
     for (int j = 0; num[j] != 0; ++j) {
-        tree.insert(num[j]);
+        tree.insert(num[j], false);
     }
     cout << endl;
 //    tree.print();
@@ -444,10 +461,11 @@ void finding_meaty() {
     cin >> broccoli_traps_index;
 
     // delete the broccoli traps and replace with correct nodes
-    int traps[10] = {0};
-    Meaty::broccoli_traps(broccoli_traps_index, traps);
-    for (int j = 0; traps[j] != 0; ++i) {
+    int traps[MAX_ARRAY_SIZE] = {0};
+    Meaty::broccoli_traps(broccoli_traps_index, traps, num);  // TODO: postfix delete
+    for (int j = 0; traps[j] != 0; ++j) {
         tree.delete_node(traps[j]);
+//        cout << traps[j] << endl;
     }
 
     cout << endl;
@@ -455,11 +473,15 @@ void finding_meaty() {
     cout << endl;
     cout << "Shortest path to find the meaty:" << endl;
 
-    // TODO output the correct path of Finding Meaty
+    // output the correct path of Finding Meaty
     BST_Node *cur = tree.root;
+    BST_Node *parent;
     stack<BST_Node *> s;
 
-    cout << cur->data << endl;
+//    tree.print();
+
+    /* find sword */
+    cout << cur->data;
     while (cur->data != sword_location) {
         if (cur->data > sword_location) {
             s.push(cur);
@@ -472,6 +494,34 @@ void finding_meaty() {
         }
     }
 
+
+    /* find the shortest path root */
+    while (!s.empty()) {
+        cur = s.top();
+        s.pop();
+        cout << "->" << cur->data;
+
+        if (meaty_location > sword_location) {
+            if (cur->right != NULL && cur->right->data >= meaty_location) {
+                break;
+            }
+        } else {
+            if (cur->left != NULL && cur->left->data <= meaty_location) {
+                break;
+            }
+        }
+    }
+
+    /* find meaty */
+    while (cur->data != meaty_location) {
+        if (cur->data > meaty_location) {
+            cur = cur->left;
+        } else {
+            cur = cur->right;
+        }
+        cout << "->" << cur->data;
+    }
+    cout << endl;
 
 }
 
