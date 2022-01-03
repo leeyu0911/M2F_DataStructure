@@ -130,10 +130,11 @@ void find_postorder(vector<int> const &inorder, vector<int> const &preorder, str
     txt.open(output_fileName, ofstream::app);
     while (!s.empty())
     {
-//        cout << s.front() << ' ';
+        cout << s.front() << " ";
         txt << s.front() << " ";
         s.pop();
     }
+    cout << endl;
     txt << endl;
     txt.close();
 }
@@ -180,10 +181,11 @@ void find_preorder(vector<int> const &inorder, vector<int> const &postorder, str
     txt.open(output_fileName, ofstream::app);
     while (!stack.empty())
     {
-//        cout << stack.top() << ' ';
+        cout << stack.top() << " ";
         txt << stack.top() << " ";
         stack.pop();
     }
+    cout << endl;
     txt << endl;
     txt.close();
 }
