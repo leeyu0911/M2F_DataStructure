@@ -164,8 +164,7 @@ void post_in_order(int start, int end, vector<int> const &postorder, int &pIndex
     stack.push(value);
 }
 
-void find_preorder(vector<int> const &inorder, vector<int> const &postorder, string output_fileName)
-{
+void find_preorder(vector<int> const &inorder, vector<int> const &postorder, string output_fileName) {
     unordered_map<int, int> map;
 
     // fill the map
@@ -209,8 +208,7 @@ void order_algo(dataSet &data, string output_fileName) {
 int m;  // nums of test datasets
 vector<dataSet> dataSets;  // store m test dataset
 
-int main()
-{
+int main() {
     string output_fileName = open_file(m, dataSets, 0);  // TODO: test_mode
     DEBUG("output file name", output_fileName);
 
