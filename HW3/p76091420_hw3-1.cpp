@@ -20,6 +20,7 @@ using namespace std;
 #define DEBUG(msg, x)
 #endif
 
+
 class dataSet {  // test dataste
 public:
     string str_order;
@@ -27,6 +28,7 @@ public:
     vector<int> preOrPost_order;
     vector<int> inorder;
 };
+
 
 string open_file(int &m, vector<dataSet> &dataSets, int test_mode) {
 
@@ -40,7 +42,7 @@ string open_file(int &m, vector<dataSet> &dataSets, int test_mode) {
     while (!txtFile) {  // if file not found, get file_name again
         cout << "file not found!" << endl;
         cout << "enter file_name :";
-        cin >> file_name;  //commend for auto load maze.txt
+        cin >> file_name;
         txtFile.open(file_name);
     }
 
@@ -49,6 +51,7 @@ string open_file(int &m, vector<dataSet> &dataSets, int test_mode) {
     ofstream txt;
     txt.open(file_name);
     txt << "";  // clean the file
+    txt.close();
 
     // load file
     string s;
@@ -99,40 +102,42 @@ int search(vector<int> arr, int x, int n) {
     return -1;
 }
 
-void pre_in_order(vector<int> in, vector<int> pre, int n, queue<int> &s) {
+void pre_in_order(vector<int> in, vector<int> pre, int n, queue<int> &q) {
     // first element is always root
     int root = search(in, pre[0], n);
 
     // if left subtree is not empty, go left subtree
     if (root != 0) {
         vector<int> n_pre = {pre.begin() + 1, pre.end()};
-        pre_in_order(in, n_pre, root, s);
+        pre_in_order(in, n_pre, root, q);
     }
 
     // if right subtree is not empty, go right subtree
     if (root != n - 1) {
         vector<int> n_in = {in.begin() + root + 1, in.end()};
         vector<int> n_pre = {pre.begin() + root + 1, pre.end()};
-        pre_in_order(n_in, n_pre, n - root - 1, s);
+        pre_in_order(n_in, n_pre, n - root - 1, q);
     }
 
 //    cout << pre[0] << " ";
-    s.push(pre[0]);
+    q.push(pre[0]);
 }
 
 
 void find_postorder(vector<int> const &inorder, vector<int> const &preorder, string output_fileName) {
     int n = preorder.size();
 //    cout << "postorder: " << endl;
-    queue<int> s;
-    pre_in_order(inorder, preorder, n, s);
+    queue<int> q;
+    pre_in_order(inorder, preorder, n, q);
+
+    // output txt
     ofstream txt;
     txt.open(output_fileName, ofstream::app);
-    while (!s.empty())
+    while (!q.empty())
     {
-        cout << s.front() << " ";
-        txt << s.front() << " ";
-        s.pop();
+        cout << q.front() << " ";
+        txt << q.front() << " ";
+        q.pop();
     }
     cout << endl;
     txt << endl;
@@ -177,6 +182,7 @@ void find_preorder(vector<int> const &inorder, vector<int> const &postorder, str
     // fill the stack
     post_in_order(0, lastIndex, postorder, lastIndex, map, stack);
 
+    // output txt
     ofstream txt;
     txt.open(output_fileName, ofstream::app);
     while (!stack.empty())
@@ -191,7 +197,7 @@ void find_preorder(vector<int> const &inorder, vector<int> const &postorder, str
 }
 
 /* chose function */
-void order_algo(dataSet &data, vector<int> &answer, string output_fileName) {
+void order_algo(dataSet &data, string output_fileName) {
     if (data.str_order == "preorder-inorder")
         find_postorder(data.inorder, data.preOrPost_order, output_fileName);
     else if (data.str_order == "postorder-inorder")
@@ -202,16 +208,14 @@ void order_algo(dataSet &data, vector<int> &answer, string output_fileName) {
 
 int m;  // nums of test datasets
 vector<dataSet> dataSets;  // store m test dataset
-vector<vector<int>> answers;  // store m answers
 
 int main()
 {
     string output_fileName = open_file(m, dataSets, 0);  // TODO: test_mode
     DEBUG("output file name", output_fileName);
 
-    answers = vector<vector<int>>(m, vector<int>(m, 0));
     for (int i = 0; i < m; ++i) {
-        order_algo(dataSets.at(i), answers.at(i), output_fileName);
+        order_algo(dataSets.at(i), output_fileName);
     }
 
 
