@@ -14,13 +14,12 @@ set(CMAKE_CXX_STANDARD 14)
 
 #add_executable(test1 test/test_callby.cpp)
 #add_executable(test2 test/test_load_int.cpp)
-#add_executable(test3 test/main0.cpp)
 
 
 file (GLOB_RECURSE files *.cpp)
 foreach (file ${files})
     string(REGEX REPLACE ".+/(.+)\\..*" "\\1" exe ${file})
     add_executable (${exe} ${file})
-    message (\ \ \ \ --\ src/${exe}.cpp\ will\ be\ compiled\ to\ bin/${exe})
+#    message (\ \ \ \ --\ src/${exe}.cpp\ will\ be\ compiled\ to\ bin/${exe})
 endforeach ()
 
