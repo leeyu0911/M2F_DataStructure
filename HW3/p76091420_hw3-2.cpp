@@ -26,7 +26,7 @@ public:
 };
 
 
-void resharp_matrix(int m, vector<int> &matrix_1d, vector<vector<int>> &matrix_2d) {
+void reshape_matrix(int m, vector<int> &matrix_1d, vector<vector<int>> &matrix_2d) {
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < m; ++j) {
             matrix_2d.at(i).at(j) = matrix_1d.at(i * m + j);
@@ -83,7 +83,7 @@ string open_file(int &m, vector<dataSet> &dataSets, int test_mode) {
         // store matrix
         vector<int> temp_1d_adj(num_list.begin()+i+2, num_list.begin()+i+2+n*n);
         dataSets.at(index).matrix = vector<vector<int>>(n, vector<int>(n, 0));
-        resharp_matrix(n, temp_1d_adj, dataSets.at(index).matrix);
+        reshape_matrix(n, temp_1d_adj, dataSets.at(index).matrix);
 
         // init visited
         dataSets.at(index).visited = vector<bool>(n, false);
